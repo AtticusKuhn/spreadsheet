@@ -1,19 +1,13 @@
 {
     "name": "imba-starter-app",
     "imba": {
-        "output": {
-            "manifest": "./dist",
-            "browser": "./dist/browser",
-            "node": "./dist/node",
-            "url": "/bundle"
-        },
         "serve": {
             "port": 8000,
             "contentBase": "./public",
             "historyApiFallback": true
         },
-        "browser": "./src/index.imba",
-        "node": "./src/server.imba"
+        "node": "./src/server.imba",
+        "browser": "./src/index.imba"
     },
     "scripts": {
         "start": "imba dev",
