@@ -1,4 +1,5 @@
 {
+    "name": "imba-starter-app",
     "imba": {
         "output": {
             "manifest": "./dist",
