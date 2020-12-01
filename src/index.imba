@@ -1,5 +1,5 @@
 # add preflight.css (https://tailwindcss.com/docs/preflight)
-import './preflight.css'
+import './resources/preflight.css'
 
 # set some global css
 global css

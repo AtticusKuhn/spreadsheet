@@ -7,14 +7,15 @@
             "url": "/bundle"
         },
         "serve": {
-            "port": 9005,
+            "port": 8000,
             "contentBase": "./public",
             "historyApiFallback": true
         },
-        "browser": "./src/index.imba"
+        "browser": "./src/index.imba",
+        "node": "./src/server.imba"
     },
     "scripts": {
-        "dev": "imba dev",
+        "start": "imba dev",
         "build": "imba build",
         "watch": "imba watch",
         "serve": "imba serve"
