@@ -1,0 +1,16 @@
+{
+    "imba": {
+        "output": {
+            "manifest": "./dist",
+            "browser": "./dist/browser",
+            "node": "./dist/node",
+            "url": "/bundle"
+        },
+        "serve": {
+            "port": 9005,
+            "contentBase": "./public",
+            "historyApiFallback": true
+        },
+        "browser": "./src/index.imba"
+    }
+}
