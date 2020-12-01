@@ -12,5 +12,11 @@
             "historyApiFallback": true
         },
         "browser": "./src/index.imba"
+    },
+    "scripts": {
+        "dev": "imba dev",
+        "build": "imba build",
+        "watch": "imba watch",
+        "serve": "imba serve"
     }
 }
