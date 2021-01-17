@@ -2,14 +2,12 @@
 
 A lightweight foundation for your imba project.
 
-## Installation
+```
+# install imba globally
+npm install -g imba@pre
 
-```
-npm install
-```
+# start the server - in watch mode
+imba -w server.imba
 
-## Start Dev Server
+# open http://localhost:3000 in browser
 ```
-npm start
-```
-Will start serving your project at http://localhost:8000 (or as configured in `package.json -> imba -> serve`). Includes continuous building and hot reloading.

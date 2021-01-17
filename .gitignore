@@ -2,3 +2,6 @@ build
 node_modules
 .DS_Store
 tmp
+.cache
+.imba
+manifest.json
