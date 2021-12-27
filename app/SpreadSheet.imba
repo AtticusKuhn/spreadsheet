@@ -23,33 +23,26 @@ def thingy low, high
 tag SpreadSheet
 	scrollY = 0
 	index = 0
+	xindex = 0
 	# ranger = do(low, high) return [low ... high]
 	def mount
-		log "mount"
-		log($container.clientHeight)
-		$container.scroll(0, $container.clientHeight/2)
+		# log "mount"
+		# log($container.clientHeight)
+		$container.scroll(0,0)
+
+		# $container.scroll($container.clientWidth/2, $container.clientHeight/2)
 	def onscroll e
 		# log e
-		scrollY = window.scrollY
-	def handlescroll i,isLow
-		# i == index ? index +=1  :  index -= 1
-		# log $container
-		log(i, index, isLow)
-		$container.scroll(0, $container.clientHeight/2)
-		if isLow
-			index +=1
-		else
-			# pass
-			index -=1
+		index  = Math.max(0, index+ ( $container.scrollTop - $container.clientHeight/2 ))
+		xindex =Math.max(0, index+( $container.scrollLeft - $container.clientWidth/2 ))
+		$container.scroll($container.clientWidth/2, $container.clientHeight/2)
 	def render
 		<self>
 			<h1> "hi!"
-			# <h1> (thingy 100, 200).toString!
-			index
-			<div$container.container[h:80vh w:80vw of:scroll] @scroll(window).log=(onscroll)>
-				# <div.padding[mb:{index*100}px]>
-				# <div.padding[mt:{index*100}px]>
-				for i, idx in thingy index - 500, index+500
-					<h1 @intersect.out=(handlescroll i, idx in [12,13,14,15,16, 17])> i, " and ",  idx
-				# <App>
+			"xindex = " , xindex, " yindex = ", index
+			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log=(onscroll)>
+				for y in [0 ... 100]
+					<div.row[  white-space: nowrap]>
+						for x in [0 ... 15] 
+							<div[display:inline-block p:10px border:3px solid black]> ("x = ", Math.floor(x + xindex), " y = ",   Math.floor(y + index))
 export default SpreadSheet
