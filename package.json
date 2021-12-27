@@ -1,4 +1,9 @@
 {
     "name": "imba-starter-app",
-    "dependencies": {}
+    "scripts": {
+        "run": "imba -w server.imba"
+    },
+    "dependencies": {
+        "imba": "^2.0.0-alpha.199"
+    }
 }
