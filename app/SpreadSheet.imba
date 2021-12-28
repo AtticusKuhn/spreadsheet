@@ -50,8 +50,10 @@ def toExcel num
 	const letters = numberDigits.map(do(d) 	String.fromCharCode(d+65))
 	const str = letters.join("")
 
-window.toExcel = toExcel
-
+# def computeFormula formula
+# 	if formula.startsWith "="
+# 		return  eval "({formula})"
+# 	return formula + " (nothing)"
 tag Cell 
 	prop x 
 	prop y
@@ -59,26 +61,37 @@ tag Cell
 	# 	self.name = 
 	def handlechange
 		map[(toExcel x) + y] = $input.value if $input.value !== ""
+		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
+	autorender=1fps
 	def render
 		const name = (toExcel x) + y
 		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:1px solid black]>
 			<div> name
+			# computeFormula (map[name] || "")
+			# <br>
 			# <input type="text" bind=(map[name])>
 			<input$input type='text' @change=(handlechange) value=(map[name] || "")>
+	
+
+
 def decimalPart n
 	n - Math.floor(n)
 tag SpreadSheetHolder
 	scrollY = 0
 	index = 0
 	xindex = 0
+	autorender=1fps
 	def mount
 		center = 
 			x: $container.clientWidth/2,
 			y: $container.clientHeight/2 
 		$container.scroll(0,0)
-		log state
+		log "mount"
+		const storage = window.localStorage.getItem('spreadsheet');
+		# if storage
+		map = JSON.parse(storage)
+		render
 	def handleScroll 
-		log center
 		dy=  $container.scrollTop - $container.clientHeight/2
 		dx = $container.scrollLeft -  $container.clientWidth/2
 		index  = Math.max(0, index + ($container.scrollTop - center.y)/cellHeight)
