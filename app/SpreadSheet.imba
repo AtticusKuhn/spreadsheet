@@ -26,6 +26,7 @@ const cellWidth= 100
 # 		chars.push(String.fromCharCode([tmp[1] - 1]))
 # 	return chars.reverse().join("")
 # window.to_excel = to_excel
+let map = {}
 def convertBases num, radix=10
 	let keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 	#   if (!(radix >= 2 && radix <= keys.length)) throw new RangeError("toBase() radix argument must be between 2 and " + keys.length)
@@ -56,10 +57,14 @@ tag Cell
 	prop y
 	# def setup
 	# 	self.name = 
+	def handlechange
+		map[(toExcel x) + y] = $input.value if $input.value !== ""
 	def render
+		const name = (toExcel x) + y
 		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:1px solid black]>
-			<div> (toExcel x) + y
-			<input$input type='text' onchange=(state.setCell((toExcel x) + y, $input.value)) value=(state.cells[(toExcel x) + y] || "")>
+			<div> name
+			# <input type="text" bind=(map[name])>
+			<input$input type='text' @change=(handlechange) value=(map[name] || "")>
 def decimalPart n
 	n - Math.floor(n)
 tag SpreadSheetHolder
@@ -85,7 +90,7 @@ tag SpreadSheetHolder
 	def render
 		<self>
 			<h1> "SpreadSheet"
-			JSON.stringify(state.cells)
+			JSON.stringify(map)
 			"xindex = " ,  xindex, " yindex = ", index
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
