@@ -1,9 +1,21 @@
 {
     "name": "imba-starter-app",
     "scripts": {
-        "run": "imba -w server.imba"
+        "run": "imba -w server.imba",
+        "build": "webpack",
+        "start": "webpack-dev-server --mode=development",
+        "dash": "webpack-dashboard --minimal -- webpack-dev-server --mode=development",
+        "wbuild": "webpack --mode=production",
+        "ibuild": "imba build app/index.html",
+        "deploy": "yarn run ibuild && touch dist/public/.nojekyll && git add  dist/public && git commit -m \"Initial  dist/public subtree commit\" && git subtree push --prefix  dist/public origin gh-pages"
     },
     "dependencies": {
         "imba": "^2.0.0-alpha.199"
+    },
+    "devDependencies": {
+        "webpack": "^4.43.0",
+        "webpack-cli": "^3.3.11",
+        "webpack-dashboard": "^3.2.0",
+        "webpack-dev-server": "^3.10.3"
     }
 }
