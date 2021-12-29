@@ -1,12 +1,12 @@
 
-class State
-	static instance = null
-	constructor
-		self.cells = {}
-	def setCell cell, value
-		self.cells[cell] = value if value != ""
+# class State
+# 	static instance = null
+# 	constructor
+# 		self.cells = {}
+# 	def setCell cell, value
+# 		self.cells[cell] = value if value != ""
 const log = console.log
-let state = new State!
+# let state = new State!
 const cellHeight= 100
 const cellWidth= 100
 # import string
@@ -27,23 +27,23 @@ const cellWidth= 100
 # 	return chars.reverse().join("")
 # window.to_excel = to_excel
 let map = {}
-def convertBases num, radix=10
-	let keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-	#   if (!(radix >= 2 && radix <= keys.length)) throw new RangeError("toBase() radix argument must be between 2 and " + keys.length)
-	let isNegative=false
-	if (num < 0) 
-		isNegative = true
-	# if (isNaN(num = Math.abs(+num))) return NaN
+# def convertBases num, radix=10
+# 	let keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+# 	#   if (!(radix >= 2 && radix <= keys.length)) throw new RangeError("toBase() radix argument must be between 2 and " + keys.length)
+# 	let isNegative=false
+# 	if (num < 0) 
+# 		isNegative = true
+# 	# if (isNaN(num = Math.abs(+num))) return NaN
 
-	let output = [];
-	while num !=0
-		let index = num % radix;
-		output.unshift(keys[index]);
-		num = Math.trunc(num / radix);
-	# } while (num != 0);
-	if (isNegative) 
-		output.unshift('-')
-	return output
+# 	let output = [];
+# 	while num !=0
+# 		let index = num % radix;
+# 		output.unshift(keys[index]);
+# 		num = Math.trunc(num / radix);
+# 	# } while (num != 0);
+# 	if (isNegative) 
+# 		output.unshift('-')
+# 	return output
 # def toExcel num
 # 	const digits = convertBases num, 26
 # 	const numberDigits = digits.map(do(d) typeof d === "string" ? d.charCodeAt(0) - 65 : d )
@@ -65,12 +65,15 @@ def toExcel n
 # 	if formula.startsWith "="
 # 		return  eval "({formula})"
 # 	return formula + " (nothing)"
-def evalutateFormula formula
+def evalutateFormula formula, context
 	if formula.startsWith "="
 		try
-			return window.eval "({formula.substring(1)})"
-		catch
-			return "#ERROR"
+			let regex = /[A-Z]+[0-9]+/
+			let replaced = formula.substring(1).replace(regex, do(e) evalutateFormula context[e], context)
+			log replaced
+			return window.eval "({replaced})"
+		catch e
+			return "#ERROR {e}"
 	return formula
 tag Cell 
 	prop x 
@@ -78,7 +81,7 @@ tag Cell
 	# def setup
 	# 	self.name = 
 	def handlechange
-		map[(toExcel x) + y] = $input.value if $input.value !== ""
+		map[(toExcel x) + y] = $input.value if !($input.value == "" && !map[(toExcel x) + y])
 		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
 	autorender=1fps
 	def render
@@ -92,7 +95,7 @@ tag Cell
 			<div>
 				<input$input [w:{cellWidth}px display:inline-block] type='text' @change=(handlechange) value=(map[name] || "")>
 			<div>
-				evalutateFormula (map[name] || "")
+				evalutateFormula (map[name] || ""), map
 
 			
 	
@@ -107,8 +110,8 @@ tag SpreadSheetHolder
 	autorender=1fps
 	def mount
 		center = 
-			x: $container.clientWidth/2,
-			y: $container.clientHeight/2 
+			x: 0 # $container.clientWidth/2,
+			y: 0# $container.clientHeight/2 
 		$container.scroll(0,0)
 		log "mount"
 		const storage = window.localStorage.getItem('spreadsheet');
@@ -118,8 +121,8 @@ tag SpreadSheetHolder
 	def handleScroll 
 		dy=  $container.scrollTop - $container.clientHeight/2
 		dx = $container.scrollLeft -  $container.clientWidth/2
-		index  = Math.max(0, index + ($container.scrollTop - center.y)/cellHeight)
-		xindex = Math.max(0, xindex + ($container.scrollLeft - center.x)/cellWidth)
+		index  =  index + ($container.scrollTop - center.y)/cellHeight
+		xindex =  xindex + ($container.scrollLeft - center.x)/cellWidth
 		center =
 			x: $container.clientWidth/2 + (dx % cellHeight)
 			y:  $container.clientHeight/2 + (dy % cellHeight)
@@ -134,5 +137,5 @@ tag SpreadSheetHolder
 				for y in [0 ... 10]
 					<div.row[white-space: nowrap d:flex fld:row]>
 						for x in [0 ... 20] 
-							<Cell x=Math.floor(x + xindex) y=Math.floor(y + index)>
+							<Cell x=Math.floor(x + xindex) y=Math.floor(y + index)>  # if (x + xindex >=0) && (y + index) >=0
 export default SpreadSheetHolder
