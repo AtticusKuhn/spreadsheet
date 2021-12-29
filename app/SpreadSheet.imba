@@ -80,6 +80,18 @@ def evalutateFormula formula, context
 		catch e
 			return "#ERROR {e}"
 	return formula
+# def isPointInsideElement element, x, y
+# 	const rect = element.getBoundingClientRect()
+# 	log "rect", rect
+# 	log "x,y",x,y
+	# return !(x < rect.left  or x > rect.right or y < rect.top or y > rect.botton)
+def isPointInsideElement event, element
+	const rect = element.getBoundingClientRect();
+	const x = event.clientX;
+	return false if (x < rect.left || x >= rect.right) 
+	const y = event.clientY;
+	return false if (y < rect.top || y >= rect.bottom) 
+	return true;
 tag Cell 
 	prop x 
 	prop y
@@ -96,17 +108,29 @@ tag Cell
 	def esc
 		$input.blur()
 		mode="normal"
+	def handleTouch evt
+		cell = 
+			x: x
+			y: y
+		const isInside = isPointInsideElement(evt, $input)
+		log "isinside {isInside}"
+		if isInside
+			mode="edit"
+		else 
+			mode="normal"
 	def render
 		const name = (toExcel x) + y
 		const color = (x === cell.x) && (y === cell.y) ? "red" : "black"
 		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:3px solid {color} d:flex fld:column]
 		@hotkey("e").passive.prevent=(edit)
-		@hotkey("esc").passive=(esc)
+		@hotkey("x").passive.prevent.stop=(esc)
+		# @touch.outside
+		@click=(handleTouch)
 
 		>
 			<div> name
 			<div>
-				<input$input [w:{cellWidth}px display:inline-block] type='text' @change=(handlechange) value=(map[name] || "")>
+				<input$input .mousetrap [w:{cellWidth}px display:inline-block] type='text' readonly=(mode==="normal") @change=(handlechange) value=(map[name] || "")>
 			<div> evalutateFormula((map[name] || ""), map)
 
 
@@ -123,7 +147,7 @@ tag SpreadSheetHolder
 			y: 0# $container.clientHeight/2 
 		$container.scroll(0,0)
 		log "mount"
-		const storage = window.localStorage.getItem('spreadsheet');
+		const storage = window.localStorage.getItem('spreadsheet') || "\{\}";
 		# if storage
 		map = JSON.parse(storage)
 		render
@@ -139,15 +163,20 @@ tag SpreadSheetHolder
 	def left
 		cell.x = Math.max 0, cell.x - 1
 		xindex = Math.max 0, xindex - 1
+		mode="normal"
 	def right
 		cell.x = Math.max 0, cell.x + 1
 		xindex = Math.max 0, xindex + 1
+		mode="normal"
 	def up
 		cell.y = Math.max 0, cell.y - 1
-		index = Math.max 0, index - 1
+		index =  Math.max 0, index - 1
+		mode="normal"
 	def down 
 		cell.y = Math.max 0, cell.y + 1
-		index = Math.max 0, index + 1
+		index =  Math.max 0, index + 1
+		mode="normal"
+
 	def render
 		<self
 			@hotkey("left")=(left)
