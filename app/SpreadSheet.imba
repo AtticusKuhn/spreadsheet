@@ -44,16 +44,34 @@ def convertBases num, radix=10
 	if (isNegative) 
 		output.unshift('-')
 	return output
-def toExcel num
-	const digits = convertBases num, 26
-	const numberDigits = digits.map(do(d) typeof d === "string" ? d.charCodeAt(0) - 65 : d )
-	const letters = numberDigits.map(do(d) 	String.fromCharCode(d+65))
-	const str = letters.join("")
+# def toExcel num
+# 	const digits = convertBases num, 26
+# 	const numberDigits = digits.map(do(d) typeof d === "string" ? d.charCodeAt(0) - 65 : d )
+# 	const letters = numberDigits.map(do(d) 	String.fromCharCode(d+65))
+# 	const str = letters.join("")
+def toExcel n
+	#   function colName(n) {
+	let ordA = 'A'.charCodeAt(0);
+	let ordZ = 'Z'.charCodeAt(0);
+	let len = ordZ - ordA + 1;
+
+	let s = "";
+	while n >= 0 
+		s = String.fromCharCode(n % len + ordA) + s;
+		n = Math.floor(n / len) - 1;
+	return s;
 
 # def computeFormula formula
 # 	if formula.startsWith "="
 # 		return  eval "({formula})"
 # 	return formula + " (nothing)"
+def evalutateFormula formula
+	if formula.startsWith "="
+		try
+			return window.eval "({formula.substring(1)})"
+		catch
+			return "#ERROR"
+	return formula
 tag Cell 
 	prop x 
 	prop y
@@ -65,12 +83,18 @@ tag Cell
 	autorender=1fps
 	def render
 		const name = (toExcel x) + y
-		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:1px solid black]>
+		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:1px solid black d:flex fld:column]>
 			<div> name
 			# computeFormula (map[name] || "")
 			# <br>
 			# <input type="text" bind=(map[name])>
-			<input$input type='text' @change=(handlechange) value=(map[name] || "")>
+			# "eee"
+			<div>
+				<input$input [w:{cellWidth}px display:inline-block] type='text' @change=(handlechange) value=(map[name] || "")>
+			<div>
+				evalutateFormula (map[name] || "")
+
+			
 	
 
 
@@ -108,7 +132,7 @@ tag SpreadSheetHolder
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
 				for y in [0 ... 10]
-					<div.row[white-space: nowrap]>
+					<div.row[white-space: nowrap d:flex fld:row]>
 						for x in [0 ... 20] 
 							<Cell x=Math.floor(x + xindex) y=Math.floor(y + index)>
 export default SpreadSheetHolder
