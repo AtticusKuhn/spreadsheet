@@ -9,6 +9,11 @@ const log = console.log
 # let state = new State!
 const cellHeight= 100
 const cellWidth= 100
+let mode = "normal"
+let cell =
+	x: 0
+	y: 0 
+log "cell", cell
 # import string
 # def divmod_excel n
 # 	# a, b = divmod(n, 26)
@@ -70,7 +75,7 @@ def evalutateFormula formula, context
 		try
 			let regex = /[A-Z]+[0-9]+/
 			let replaced = formula.substring(1).replace(regex, do(e) evalutateFormula context[e], context)
-			log replaced
+			# log replaced
 			return window.eval "({replaced})"
 		catch e
 			return "#ERROR {e}"
@@ -84,21 +89,25 @@ tag Cell
 		map[(toExcel x) + y] = $input.value if !($input.value == "" && !map[(toExcel x) + y])
 		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
 	autorender=1fps
+	def edit 
+		if (x === cell.x) && (y === cell.y)
+			mode="edit"
+			$input.focus()
+	def esc
+		$input.blur()
+		mode="normal"
 	def render
 		const name = (toExcel x) + y
-		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:1px solid black d:flex fld:column]>
+		const color = (x === cell.x) && (y === cell.y) ? "red" : "black"
+		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:3px solid {color} d:flex fld:column]
+		@hotkey("e").passive.prevent=(edit)
+		@hotkey("esc").passive=(esc)
+
+		>
 			<div> name
-			# computeFormula (map[name] || "")
-			# <br>
-			# <input type="text" bind=(map[name])>
-			# "eee"
 			<div>
 				<input$input [w:{cellWidth}px display:inline-block] type='text' @change=(handlechange) value=(map[name] || "")>
-			<div>
-				evalutateFormula (map[name] || ""), map
-
-			
-	
+			<div> evalutateFormula((map[name] || ""), map)
 
 
 def decimalPart n
@@ -127,11 +136,29 @@ tag SpreadSheetHolder
 			x: $container.clientWidth/2 + (dx % cellHeight)
 			y:  $container.clientHeight/2 + (dy % cellHeight)
 		$container.scroll(center.x, center.y)
+	def left
+		cell.x = Math.max 0, cell.x - 1
+		xindex = Math.max 0, xindex - 1
+	def right
+		cell.x = Math.max 0, cell.x + 1
+		xindex = Math.max 0, xindex + 1
+	def up
+		cell.y = Math.max 0, cell.y - 1
+		index = Math.max 0, index - 1
+	def down 
+		cell.y = Math.max 0, cell.y + 1
+		index = Math.max 0, index + 1
 	def render
-		<self>
+		<self
+			@hotkey("left")=(left)
+			@hotkey("right")=(right)
+			@hotkey("up")=(up)
+		 	@hotkey("down")=(down)
+		>
 			<h1> "SpreadSheet"
 			JSON.stringify(map)
 			"xindex = " ,  xindex, " yindex = ", index
+			"mode = {mode}"
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
 				for y in [0 ... 10]
