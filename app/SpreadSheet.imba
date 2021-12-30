@@ -10,6 +10,7 @@ const log = console.log
 const cellHeight= 100
 const cellWidth= 100
 let mode = "normal"
+let draggedCell = null
 let cell =
 	x: 0
 	y: 0 
@@ -92,6 +93,7 @@ def isPointInsideElement event, element
 	const y = event.clientY;
 	return false if (y < rect.top || y >= rect.bottom) 
 	return true;
+const  isBetween =  do(x, low, high) x >= low && x <= high
 tag Cell 
 	prop x 
 	prop y
@@ -118,15 +120,37 @@ tag Cell
 			mode="edit"
 		else 
 			mode="normal"
+	def dragover
+		draggedCell = 
+			x:x
+			y:y
+	def dragend
+		const lowx = Math.min(cell.x, draggedCell.x)
+		const highx = Math.max(cell.x, draggedCell.x)
+		const lowy = Math.min(cell.y, draggedCell.y)
+		const highy = Math.max(cell.y, draggedCell.y)
+		for i in [lowx ... highx]
+			for j in [lowy .. highy]
+				map[(toExcel i) + j] = map[(toExcel x) + y] if (toExcel x) + y !== ""
+		draggedCell = null
+		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
 	def render
 		const name = (toExcel x) + y
-		const color = (x === cell.x) && (y === cell.y) ? "red" : "black"
+		const isInDragSelection = draggedCell !== null && isBetween(x, Math.min(cell.x, draggedCell.x), Math.max(cell.x, draggedCell.x))  && isBetween(y, Math.min(cell.y, draggedCell.y), Math.max(cell.y, draggedCell.y))
+		const color = (x === cell.x) && (y === cell.y) ? "red" : (isInDragSelection ? "blue" :  "black")
 		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:3px solid {color} d:flex fld:column]
 		@hotkey("e").passive.prevent=(edit)
 		@hotkey("x").passive.prevent.stop=(esc)
 		# @touch.outside
 		@click=(handleTouch)
-
+			# @drag.log("drag")
+			@dragend=(dragend)
+			# @dragenter.log("dragenter")
+			# @dragleave.log("dragleave")
+			@dragover=(dragover)
+			# @dragstart.log("dragstart")
+			# @drop=(drop")
+		draggable
 		>
 			<div> name
 			<div>
