@@ -10,6 +10,7 @@ const log = console.log
 const cellHeight= 100
 const cellWidth= 100
 let mode = "normal"
+let clipboard = ""
 let draggedCell = null
 let cell =
 	x: 0
@@ -134,6 +135,10 @@ tag Cell
 				map[(toExcel i) + j] = map[(toExcel x) + y] if (toExcel x) + y !== ""
 		draggedCell = null
 		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
+	def dragstart
+		cell = 
+			x:x
+			y:y
 	def render
 		const name = (toExcel x) + y
 		const isInDragSelection = draggedCell !== null && isBetween(x, Math.min(cell.x, draggedCell.x), Math.max(cell.x, draggedCell.x))  && isBetween(y, Math.min(cell.y, draggedCell.y), Math.max(cell.y, draggedCell.y))
@@ -148,7 +153,7 @@ tag Cell
 			# @dragenter.log("dragenter")
 			# @dragleave.log("dragleave")
 			@dragover=(dragover)
-			# @dragstart.log("dragstart")
+			@dragstart=(dragstart)
 			# @drop=(drop")
 		draggable
 		>
@@ -190,7 +195,7 @@ tag SpreadSheetHolder
 		mode="normal"
 	def right
 		cell.x = Math.max 0, cell.x + 1
-		xindex = Math.max 0, xindex + 1
+		xindex = cell.x - 7
 		mode="normal"
 	def up
 		cell.y = Math.max 0, cell.y - 1
@@ -200,18 +205,25 @@ tag SpreadSheetHolder
 		cell.y = Math.max 0, cell.y + 1
 		index =  Math.max 0, index + 1
 		mode="normal"
-
+	def copy
+		clipboard = map[(toExcel cell.x) + cell.y]
+		window.navigator.clipboard.writeText(map[(toExcel cell.x) + cell.y])
+	def paste
+		map[(toExcel cell.x) + cell.y] = clipboard
 	def render
 		<self
 			@hotkey("left")=(left)
 			@hotkey("right")=(right)
 			@hotkey("up")=(up)
 		 	@hotkey("down")=(down)
+			@hotkey("c")=(copy)
+			@hotkey("p")=(paste)
 		>
 			<h1> "SpreadSheet"
-			JSON.stringify(map)
+			# JSON.stringify(map)
 			"xindex = " ,  xindex, " yindex = ", index
 			"mode = {mode}"
+			"cell = {JSON.stringify(cell)}"
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
 				for y in [0 ... 10]
