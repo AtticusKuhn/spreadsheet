@@ -1,12 +1,5 @@
 
-# class State
-# 	static instance = null
-# 	constructor
-# 		self.cells = {}
-# 	def setCell cell, value
-# 		self.cells[cell] = value if value != ""
 const log = console.log
-# let state = new State!
 const cellHeight= 100
 const cellWidth= 100
 let mode = "normal"
@@ -16,48 +9,10 @@ let cell =
 	x: 0
 	y: 0 
 log "cell", cell
-# import string
-# def divmod_excel n
-# 	# a, b = divmod(n, 26)
-# 	let a  = n // 26
-# 	let b  = n % 26
-# 	if b == 0
-# 		return a - 1, b + 26
-# 	return a, b
-# def to_excel num
-# 	let chars = ["e"]
-# 	while num > 0
-# 		let tmp = divmod_excel(num)
-# 		console.log "tmp is {tmp}"
-# 		num = tmp[0]
-# 		chars.push(String.fromCharCode([tmp[1] - 1]))
-# 	return chars.reverse().join("")
-# window.to_excel = to_excel
-let map = {}
-# def convertBases num, radix=10
-# 	let keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-# 	#   if (!(radix >= 2 && radix <= keys.length)) throw new RangeError("toBase() radix argument must be between 2 and " + keys.length)
-# 	let isNegative=false
-# 	if (num < 0) 
-# 		isNegative = true
-# 	# if (isNaN(num = Math.abs(+num))) return NaN
 
-# 	let output = [];
-# 	while num !=0
-# 		let index = num % radix;
-# 		output.unshift(keys[index]);
-# 		num = Math.trunc(num / radix);
-# 	# } while (num != 0);
-# 	if (isNegative) 
-# 		output.unshift('-')
-# 	return output
-# def toExcel num
-# 	const digits = convertBases num, 26
-# 	const numberDigits = digits.map(do(d) typeof d === "string" ? d.charCodeAt(0) - 65 : d )
-# 	const letters = numberDigits.map(do(d) 	String.fromCharCode(d+65))
-# 	const str = letters.join("")
+let map = {}
+
 def toExcel n
-	#   function colName(n) {
 	let ordA = 'A'.charCodeAt(0);
 	let ordZ = 'Z'.charCodeAt(0);
 	let len = ordZ - ordA + 1;
@@ -68,25 +23,17 @@ def toExcel n
 		n = Math.floor(n / len) - 1;
 	return s;
 
-# def computeFormula formula
-# 	if formula.startsWith "="
-# 		return  eval "({formula})"
-# 	return formula + " (nothing)"
 def evalutateFormula formula, context
 	if formula.startsWith "="
 		try
 			let regex = /[A-Z]+[0-9]+/
-			let replaced = formula.substring(1).replace(regex, do(e) evalutateFormula context[e], context)
+			let replaced = formula.substring(1).replace(regex, do(e) JSON.stringify(evalutateFormula context[e], context))
 			# log replaced
 			return window.eval "({replaced})"
 		catch e
-			return "#ERROR {e}"
+			return "#ERROR"
 	return formula
-# def isPointInsideElement element, x, y
-# 	const rect = element.getBoundingClientRect()
-# 	log "rect", rect
-# 	log "x,y",x,y
-	# return !(x < rect.left  or x > rect.right or y < rect.top or y > rect.botton)
+
 def isPointInsideElement event, element
 	const rect = element.getBoundingClientRect();
 	const x = event.clientX;
@@ -98,8 +45,6 @@ const  isBetween =  do(x, low, high) x >= low && x <= high
 tag Cell 
 	prop x 
 	prop y
-	# def setup
-	# 	self.name = 
 	def handlechange
 		map[(toExcel x) + y] = $input.value if !($input.value == "" && !map[(toExcel x) + y])
 		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
@@ -121,11 +66,13 @@ tag Cell
 			mode="edit"
 		else 
 			mode="normal"
+		draggedCell = null
 	def dragover
 		draggedCell = 
 			x:x
 			y:y
 	def dragend
+		mode = "normal"
 		const lowx = Math.min(cell.x, draggedCell.x)
 		const highx = Math.max(cell.x, draggedCell.x)
 		const lowy = Math.min(cell.y, draggedCell.y)
@@ -136,6 +83,7 @@ tag Cell
 		draggedCell = null
 		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
 	def dragstart
+		mode = "select"
 		cell = 
 			x:x
 			y:y
@@ -190,26 +138,52 @@ tag SpreadSheetHolder
 			y:  $container.clientHeight/2 + (dy % cellHeight)
 		$container.scroll(center.x, center.y)
 	def left
-		cell.x = Math.max 0, cell.x - 1
-		xindex = Math.max 0, xindex - 1
-		mode="normal"
+		if mode === "select"
+			draggedCell = 
+				x:draggedCell.x - 1
+				y: draggedCell.y
+		else
+			cell.x = Math.max 0, cell.x - 1
+			xindex = Math.max 0, xindex - 1
+			mode="normal"
 	def right
-		cell.x = Math.max 0, cell.x + 1
-		xindex = cell.x - 7
-		mode="normal"
+		if mode === "select"
+			draggedCell = 
+				x:draggedCell.x+1
+				y: draggedCell.y
+		else
+			cell.x = Math.max 0, cell.x + 1
+			xindex = cell.x - 7
+			mode="normal"
 	def up
+		if mode === "select"
+			draggedCell = 
+				x:draggedCell.x
+				y: draggedCell.y - 1 
+		else
 		cell.y = Math.max 0, cell.y - 1
 		index =  Math.max 0, index - 1
 		mode="normal"
 	def down 
-		cell.y = Math.max 0, cell.y + 1
-		index =  Math.max 0, index + 1
-		mode="normal"
+		if mode === "select"
+			draggedCell = 
+				x:draggedCell.x
+				y: draggedCell.y + 1
+		else
+			cell.y = Math.max 0, cell.y + 1
+			index =  Math.max 0, index + 1
+			mode="normal"
 	def copy
 		clipboard = map[(toExcel cell.x) + cell.y]
 		window.navigator.clipboard.writeText(map[(toExcel cell.x) + cell.y])
 	def paste
 		map[(toExcel cell.x) + cell.y] = clipboard
+	def shift
+		mode="select"
+		draggedCell = cell
+	def escape
+		mode ="normal"
+		draggedCell = null
 	def render
 		<self
 			@hotkey("left")=(left)
@@ -218,6 +192,8 @@ tag SpreadSheetHolder
 		 	@hotkey("down")=(down)
 			@hotkey("c")=(copy)
 			@hotkey("p")=(paste)
+			@hotkey("shift")=(shift)
+			@hotkey("esc")=(escape)
 		>
 			<h1> "SpreadSheet"
 			# JSON.stringify(map)
