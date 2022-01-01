@@ -3,7 +3,7 @@ const log = console.log
 const cellHeight= 100
 const cellWidth= 100
 let mode = "normal"
-let clipboard = ""
+let clipboard\string|string[][] = ""
 let draggedCell = null
 let cell =
 	x: 0
@@ -174,10 +174,28 @@ tag SpreadSheetHolder
 			index =  Math.max 0, index + 1
 			mode="normal"
 	def copy
-		clipboard = map[(toExcel cell.x) + cell.y]
-		window.navigator.clipboard.writeText(map[(toExcel cell.x) + cell.y])
+		# let clipboard
+		if mode === "select"
+			const lowx = Math.min(cell.x, draggedCell.x)
+			const highx = Math.max(cell.x, draggedCell.x)
+			const lowy = Math.min(cell.y, draggedCell.y)
+			const highy = Math.max(cell.y, draggedCell.y)
+			const tmp = [ ... map[(toExcel i) + j]  for j in [lowy .. highy]  for i in [lowx ... highx]]
+			clipboard = tmp
+			log tmp
+		else
+			clipboard = map[(toExcel cell.x) + cell.y]
+		window.navigator.clipboard.writeText(clipboard)
 	def paste
-		map[(toExcel cell.x) + cell.y] = clipboard
+		if typeof clipboard === "string"
+			log "string {clipboard}"
+			map[(toExcel cell.x) + cell.y] = clipboard
+		else
+			log clipboard
+			for i in [0 ... clipboard.length]
+				for j in [0 ... clipboard[0].length]
+					log "i={i} j={j}"
+					map[(toExcel (cell.x + i)) + (cell.y + j)] = clipboard[i][j]
 	def shift
 		mode="select"
 		draggedCell = cell
@@ -195,11 +213,26 @@ tag SpreadSheetHolder
 			@hotkey("shift")=(shift)
 			@hotkey("esc")=(escape)
 		>
-			<h1> "SpreadSheet"
+			<h1 [ta:center fs:3rem]> "SpreadSheet"
+			<h1 [ta:center fs:2rem]> "Shortcuts"
+			<ol>
+				<li> "c: copy"
+				<li> "p: paste"
+				<li> "left arrow: left"
+				<li> "right arrow: right"
+				<li> "up arrow: up"
+				<li> "down arrow: down"
+				<li> "e: edit cell"
+				<li> "shift: select"
+				<li> "escape: go to normal mode"
+			<h1 [ta:center fs:2rem]> "Debug Information"
+
 			# JSON.stringify(map)
-			"xindex = " ,  xindex, " yindex = ", index
-			"mode = {mode}"
-			"cell = {JSON.stringify(cell)}"
+			<pre>
+				"xindex = " ,  xindex, " yindex = ", index
+				"mode = {mode}"
+				"cell = {JSON.stringify(cell)}"
+				"clipboard = {JSON.stringify(clipboard)}"
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
 				for y in [0 ... 10]

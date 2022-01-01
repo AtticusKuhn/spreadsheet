@@ -464,7 +464,7 @@
     "$$48$$",
     "$$49$$"
   ],
-  "hash": "1PSCYK6T",
+  "hash": "EXQBK6RI",
   "originalPath": "app/index.__dist__.html",
   "url": "/app/index.html"
 },
@@ -472,15 +472,15 @@
   "imports": [],
   "exports": [],
   "inputs": [],
-  "bytes": 156059,
+  "bytes": 155201,
   "source": "$$51$$",
   "_": "output",
-  "path": "public/__assets__/app/index-4POW0LET.js.map",
+  "path": "public/__assets__/app/index-8WORYQ2U.js.map",
   "public": true,
-  "url": "/__assets__/app/index-4POW0LET.js.map",
+  "url": "/__assets__/app/index-8WORYQ2U.js.map",
   "type": "map",
   "dependencies": [],
-  "hash": "4POW0LET"
+  "hash": "8WORYQ2U"
 },
 "$$46$$":{
   "imports": [],
@@ -565,7 +565,7 @@
     ],
     [
       "$$71$$",
-      7763
+      8261
     ],
     [
       "$$72$$",
@@ -576,17 +576,17 @@
       584
     ]
   ],
-  "bytes": 54718,
+  "bytes": 55216,
   "map": "$$45$$",
   "source": "$$51$$",
   "css": "$$47$$",
   "_": "output",
-  "path": "public/__assets__/app/index-4POW0LET.js",
+  "path": "public/__assets__/app/index-8WORYQ2U.js",
   "public": true,
-  "url": "/__assets__/app/index-4POW0LET.js",
+  "url": "/__assets__/app/index-8WORYQ2U.js",
   "type": "js",
   "dependencies": [],
-  "hash": "4POW0LET",
+  "hash": "8WORYQ2U",
   "hashed": true,
   "originalPath": "app/index.__dist__.js",
   "ttl": 31536000
@@ -808,7 +808,7 @@
   "path": "styles:app/SpreadSheet.imba"
 },
 "$$71$$":{
-  "bytes": 38632,
+  "bytes": 37247,
   "imports": [
     "$$68$$",
     "$$70$$"
@@ -1070,20 +1070,20 @@
   "outputs": {
     "serve.js": "$$43$$",
     "public/index.html": "$$44$$",
-    "public/__assets__/app/index-4POW0LET.js.map": "$$45$$",
-    "public/__assets__/app/index-4POW0LET.js": "$$46$$",
+    "public/__assets__/app/index-8WORYQ2U.js.map": "$$45$$",
+    "public/__assets__/app/index-8WORYQ2U.js": "$$46$$",
     "public/__assets__/app/index-BI72XO6B.css": "$$47$$",
     "public/__assets__/all-DPJHQX46.css": "$$42$$"
   },
   "urls": {
     "/app/index.html": "$$44$$",
-    "/__assets__/app/index-4POW0LET.js.map": "$$45$$",
-    "/__assets__/app/index-4POW0LET.js": "$$46$$",
+    "/__assets__/app/index-8WORYQ2U.js.map": "$$45$$",
+    "/__assets__/app/index-8WORYQ2U.js": "$$46$$",
     "/__assets__/app/index-BI72XO6B.css": "$$47$$",
     "/__assets__/all-DPJHQX46.css": "$$42$$"
   },
   "mappings": {},
-  "hash": "ZP6CA4YA",
+  "hash": "2OBSM4E0",
   "srcdir": "..",
   "outdir": ".",
   "path": "serve.js.manifest",

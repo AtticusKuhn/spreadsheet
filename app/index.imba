@@ -1,4 +1,3 @@
-import './assets/reset.css'
 import SpreadSheetHolder from "./SpreadSheet.imba"
 global css body
 	p:10
