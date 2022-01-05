@@ -117,7 +117,6 @@ tag SpreadSheetHolder < GlobalState
 				<li> "escape: go to normal mode"
 			<h1 [ta:center fs:2rem]> "Debug Information"
 
-			# JSON.stringify(map)
 			<pre>
 				"xindex = " ,  xindex, " yindex = ", index
 				"mode = {mode}"
