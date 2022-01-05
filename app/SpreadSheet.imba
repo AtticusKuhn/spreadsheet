@@ -1,123 +1,13 @@
-
-const log = console.log
-const cellHeight= 100
-const cellWidth= 100
-let mode = "normal"
-let clipboard\string|string[][] = ""
-let draggedCell = null
-let cell =
-	x: 0
-	y: 0 
-log "cell", cell
-
-let map = {}
-
-def toExcel n
-	let ordA = 'A'.charCodeAt(0);
-	let ordZ = 'Z'.charCodeAt(0);
-	let len = ordZ - ordA + 1;
-
-	let s = "";
-	while n >= 0 
-		s = String.fromCharCode(n % len + ordA) + s;
-		n = Math.floor(n / len) - 1;
-	return s;
-
-def evalutateFormula formula, context
-	if formula.startsWith "="
-		try
-			let regex = /[A-Z]+[0-9]+/
-			let replaced = formula.substring(1).replace(regex, do(e) JSON.stringify(evalutateFormula context[e], context))
-			# log replaced
-			return window.eval "({replaced})"
-		catch e
-			return "#ERROR"
-	return formula
-
-def isPointInsideElement event, element
-	const rect = element.getBoundingClientRect();
-	const x = event.clientX;
-	return false if (x < rect.left || x >= rect.right) 
-	const y = event.clientY;
-	return false if (y < rect.top || y >= rect.bottom) 
-	return true;
-const  isBetween =  do(x, low, high) x >= low && x <= high
-tag Cell 
-	prop x 
-	prop y
-	def handlechange
-		map[(toExcel x) + y] = $input.value if !($input.value == "" && !map[(toExcel x) + y])
-		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
-	autorender=1fps
-	def edit 
-		if (x === cell.x) && (y === cell.y)
-			mode="edit"
-			$input.focus()
-	def esc
-		$input.blur()
-		mode="normal"
-	def handleTouch evt
-		cell = 
-			x: x
-			y: y
-		const isInside = isPointInsideElement(evt, $input)
-		log "isinside {isInside}"
-		if isInside
-			mode="edit"
-		else 
-			mode="normal"
-		draggedCell = null
-	def dragover
-		draggedCell = 
-			x:x
-			y:y
-	def dragend
-		mode = "normal"
-		const lowx = Math.min(cell.x, draggedCell.x)
-		const highx = Math.max(cell.x, draggedCell.x)
-		const lowy = Math.min(cell.y, draggedCell.y)
-		const highy = Math.max(cell.y, draggedCell.y)
-		for i in [lowx ... highx]
-			for j in [lowy .. highy]
-				map[(toExcel i) + j] = map[(toExcel x) + y] if (toExcel x) + y !== ""
-		draggedCell = null
-		window.localStorage.setItem("spreadsheet", JSON.stringify(map))
-	def dragstart
-		mode = "select"
-		cell = 
-			x:x
-			y:y
-	def render
-		const name = (toExcel x) + y
-		const isInDragSelection = draggedCell !== null && isBetween(x, Math.min(cell.x, draggedCell.x), Math.max(cell.x, draggedCell.x))  && isBetween(y, Math.min(cell.y, draggedCell.y), Math.max(cell.y, draggedCell.y))
-		const color = (x === cell.x) && (y === cell.y) ? "red" : (isInDragSelection ? "blue" :  "black")
-		<self[display:inline-block w:{cellWidth}px h:{cellHeight}px border:3px solid {color} d:flex fld:column]
-		@hotkey("e").passive.prevent=(edit)
-		@hotkey("x").passive.prevent.stop=(esc)
-		# @touch.outside
-		@click=(handleTouch)
-			# @drag.log("drag")
-			@dragend=(dragend)
-			# @dragenter.log("dragenter")
-			# @dragleave.log("dragleave")
-			@dragover=(dragover)
-			@dragstart=(dragstart)
-			# @drop=(drop")
-		draggable
-		>
-			<div> name
-			<div>
-				<input$input .mousetrap [w:{cellWidth}px display:inline-block] type='text' readonly=(mode==="normal") @change=(handlechange) value=(map[name] || "")>
-			<div> evalutateFormula((map[name] || ""), map)
+import GlobalState from "./globalState.imba"
+import Cell from "./Cell.imba"
+import {toExcel, isBetween, evalutateFormula, isPointInsideElement, decimalPart} from "./utils.imba"
 
 
-def decimalPart n
-	n - Math.floor(n)
-tag SpreadSheetHolder
+tag SpreadSheetHolder < GlobalState
 	scrollY = 0
 	index = 0
 	xindex = 0
-	autorender=1fps
+	# autorender=1fps
 	def mount
 		center = 
 			x: 0 # $container.clientWidth/2,
@@ -127,7 +17,7 @@ tag SpreadSheetHolder
 		const storage = window.localStorage.getItem('spreadsheet') || "\{\}";
 		# if storage
 		map = JSON.parse(storage)
-		render
+		render!
 	def handleScroll 
 		dy=  $container.scrollTop - $container.clientHeight/2
 		dx = $container.scrollLeft -  $container.clientWidth/2
@@ -185,7 +75,7 @@ tag SpreadSheetHolder
 			log tmp
 		else
 			clipboard = map[(toExcel cell.x) + cell.y]
-		window.navigator.clipboard.writeText(clipboard)
+		window.navigator.clipboard.writeText(clipboard.join(""))
 	def paste
 		if typeof clipboard === "string"
 			log "string {clipboard}"
@@ -232,6 +122,7 @@ tag SpreadSheetHolder
 				"xindex = " ,  xindex, " yindex = ", index
 				"mode = {mode}"
 				"cell = {JSON.stringify(cell)}"
+				"draggedCell = {JSON.stringify(draggedCell)}"
 				"clipboard = {JSON.stringify(clipboard)}"
 			<div$container.container[h:100vh w:100vw of:scroll] @scroll(window).log.prevent=(handleScroll)>
 				<div [h:{decimalPart(index)}px]>
